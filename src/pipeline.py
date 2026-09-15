@@ -9,6 +9,7 @@ from pathlib import Path
 from .config import config
 from .ingestion.arxiv_loader import ArxivPaperDownloader
 from .ingestion.pdf_parser import SectionAwarePDFParser, PaperChunk
+from .ingestion.metadata_extractor import MetadataExtractor
 from .retrieval.embedding import GeminiEmbeddingClient
 from .retrieval.vector_store import ChromaVectorStore
 from .retrieval.bm25_index import BM25SearchIndex
@@ -25,7 +26,8 @@ class ArXivLensPipeline:
         
         # Sub-Module initialisieren
         self.downloader = ArxivPaperDownloader()
-        self.parser = SectionAwarePDFParser(chunk_size=config.chunk_size, chunk_overlap=config.chunk_overlap)
+        self.parser = SectionAwarePDFParser(chunk_size=config.chunk_size, chunk_overlap=config.chunk_overlap, api_key=self.api_key)
+        self.metadata_extractor = MetadataExtractor(api_key=self.api_key)
         self.embedding_client = GeminiEmbeddingClient(api_key=self.api_key)
         self.vector_store = ChromaVectorStore()
         self.bm25_index = BM25SearchIndex()
@@ -39,6 +41,8 @@ class ArXivLensPipeline:
     def update_api_key(self, new_key: str):
         """Aktualisiert den Google API-Key über alle Module hinweg."""
         self.api_key = new_key
+        self.parser.set_api_key(new_key)
+        self.metadata_extractor.set_api_key(new_key)
         self.embedding_client.set_api_key(new_key)
         self.llm_client.set_api_key(new_key)
 
@@ -64,6 +68,7 @@ class ArXivLensPipeline:
 
         self.indexed_papers[paper_id] = {
             **metadata,
+            "journal": "arXiv",
             "chunk_count": len(chunks)
         }
 
@@ -77,14 +82,21 @@ class ArXivLensPipeline:
         }
 
     def ingest_uploaded_pdf(self, pdf_path: str, filename: str) -> Dict[str, Any]:
-        """Parst eine vom Nutzer hochgeladene PDF-Datei und indiziert sie."""
+        """Parst eine vom Nutzer hochgeladene PDF-Datei, extrahiert Metadaten und indiziert sie."""
         paper_id = Path(filename).stem
-        title = paper_id.replace("_", " ").title()
 
+        # 1. Erste Seite extrahieren & echte Metadaten (Titel, Autoren, Journal, DOI) gewinnen
+        first_page_text = self.parser.extract_first_page_text(pdf_path)
+        extracted = self.metadata_extractor.extract_with_llm(first_page_text, filename)
+
+        title = extracted.title or paper_id.replace("_", " ").title()
+
+        # 2. Strukturierte Chunks mit 2-Spalten-Sortierung extrahieren
         chunks = self.parser.parse_pdf(pdf_path=pdf_path, paper_id=paper_id, title=title)
         if not chunks:
             raise ValueError(f"Aus der PDF '{filename}' konnten keine Chunks extrahiert werden.")
 
+        # 3. Embeddings berechnen & Indizieren
         chunk_texts = [c.text for c in chunks]
         embeddings = self.embedding_client.embed_documents(chunk_texts)
 
@@ -94,9 +106,12 @@ class ArXivLensPipeline:
         metadata = {
             "arxiv_id": paper_id,
             "title": title,
-            "authors": ["Lokaler Upload"],
-            "published": "Manuell",
-            "summary": chunks[0].text[:300] + "..." if chunks else "",
+            "authors": extracted.authors if extracted.authors else ["Wissenschaftliche Autoren"],
+            "journal": extracted.journal,
+            "published": extracted.published,
+            "doi": extracted.doi,
+            "summary": extracted.summary if extracted.summary else (chunks[0].text[:300] + "..."),
+            "pdf_url": extracted.pdf_url or (f"https://doi.org/{extracted.doi}" if extracted.doi else None),
             "chunk_count": len(chunks),
             "local_pdf_path": pdf_path
         }

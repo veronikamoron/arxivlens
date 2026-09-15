@@ -28,6 +28,14 @@ def test_bm25_tokenization_and_search():
             section="Architecture",
             page_number=3,
             text="We use Multi-Head Attention with 8 parallel attention heads."
+        ),
+        PaperChunk(
+            chunk_id="c3",
+            paper_id="p1",
+            title="Transformer",
+            section="Training",
+            page_number=7,
+            text="Training was performed on 8 NVIDIA P100 GPUs for 3.5 days."
         )
     ]
     

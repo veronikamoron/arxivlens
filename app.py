@@ -339,19 +339,35 @@ if "pending_query" not in st.session_state:
 # 3. HELPER: BIBTEX GENERATOR
 # ==============================================================================
 def generate_bibtex(metadata: dict) -> str:
-    """Generiert einen formellen akademischen BibTeX-Eintrag."""
+    """Generiert einen formellen akademischen BibTeX-Eintrag für arXiv und Journal-Paper."""
     paper_id = metadata.get("arxiv_id", "paper")
     authors = metadata.get("authors", ["Unknown"])
-    first_author = authors[0].split()[-1].lower() if authors else "author"
-    year = metadata.get("published", "2024")[:4]
-    key = f"{first_author}{year}{paper_id.replace('.', '')}"
+    first_author = re.sub(r"[^a-zA-Z]", "", authors[0].split()[-1].lower()) if authors else "author"
+    raw_pub = str(metadata.get("published", "2024"))
+    year_match = re.search(r"\b(20[0-2]\d|19\d\d)\b", raw_pub)
+    year = year_match.group(1) if year_match else "2024"
+    clean_id = re.sub(r"[^a-zA-Z0-9]", "", paper_id)
+    key = f"{first_author}{year}{clean_id[:12]}"
     author_str = " and ".join(authors)
+
+    journal = metadata.get("journal", "arXiv")
+    doi = metadata.get("doi")
+    doi_line = f"\n  doi       = {{{doi}}}," if doi else ""
+
+    if journal and journal != "arXiv":
+        journal_field = journal
+        url = metadata.get("pdf_url") or (f"https://doi.org/{doi}" if doi else "")
+    else:
+        journal_field = f"arXiv preprint arXiv:{paper_id}"
+        url = metadata.get("pdf_url", f"https://arxiv.org/abs/{paper_id}")
+
+    url_line = f"\n  url       = {{{url}}}" if url else ""
+
     return f"""@article{{{key},
   author    = {{{author_str}}},
   title     = {{{metadata.get('title', 'Unknown Title')}}},
-  journal   = {{arXiv preprint arXiv:{paper_id}}},
-  year      = {{{year}}},
-  url       = {{{metadata.get('pdf_url', 'https://arxiv.org/abs/' + paper_id)}}}
+  journal   = {{{journal_field}}},
+  year      = {{{year}}},{doi_line}{url_line}
 }}"""
 
 # ==============================================================================
@@ -521,7 +537,10 @@ with ingest_col2:
 # ==============================================================================
 indexed = st.session_state.pipeline.indexed_papers
 if indexed:
-    paper_options = {pid: f"{meta['title']} ({pid})" for pid, meta in indexed.items()}
+    paper_options = {
+        pid: f"[{meta.get('journal', 'Paper')}] {meta['title'][:55]}{'...' if len(meta['title']) > 55 else ''} ({meta.get('published', '2024')})"
+        for pid, meta in indexed.items()
+    }
     selected_pid = st.selectbox(
         "Aktives Arbeitsdokument:",
         options=list(paper_options.keys()),
@@ -536,16 +555,21 @@ if indexed:
     if len(authors) > 5:
         author_pills_html += f"<span class='author-pill'>+{len(authors)-5} weitere</span>"
 
+    journal_badge = f"<span class='metric-badge' style='background: #F1F5F9; color: #0F172A; font-weight: 600;'>🏛️ {current_meta.get('journal', 'Forschungsarbeit')}</span>"
+    doi_badge = f"<a href='https://doi.org/{current_meta['doi']}' target='_blank' style='text-decoration: none;'><span class='metric-badge' style='background: #EEF2FF; color: #4338CA; border-color: #C7D2FE;'>🔗 DOI: {current_meta['doi']}</span></a>" if current_meta.get('doi') else ""
+
     st.markdown(f"""
     <div class="paper-canvas-editorial">
         <div class="editorial-overline">A K T I V E S  D O K U M E N T</div>
         <div class="paper-canvas-heading">{current_meta.get('title', 'Unbekanntes Dokument')}</div>
         <div>{author_pills_html}</div>
         <div class="canvas-metrics-row">
+            {journal_badge}
             <span class="metric-badge">📄 {current_meta.get('chunk_count', 0)} Chunks extrahiert</span>
             <span class="metric-badge">🔍 Hybrid BM25 + Dense Index</span>
             <span class="metric-badge">⚡ Google Gemini 3.6 Flash</span>
             <span class="metric-badge">📅 {current_meta.get('published', '2024')}</span>
+            {doi_badge}
         </div>
     </div>
     """, unsafe_allow_html=True)

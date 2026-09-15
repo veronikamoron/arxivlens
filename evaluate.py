@@ -3,8 +3,12 @@ ArXivLens Benchmark & Evaluation Suite.
 Misst Latenzen, Hit-Rates und den Re-Ranking-Effekt von FlashRank im Vergleich zu BM25 und Dense Search.
 """
 
+import sys
 import time
 from typing import List, Dict, Any
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
 from src.ingestion.pdf_parser import PaperChunk
 from src.retrieval.bm25_index import BM25SearchIndex
 from src.retrieval.hybrid import HybridSearchEngine, SearchResult

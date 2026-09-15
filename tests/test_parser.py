@@ -10,8 +10,11 @@ def test_section_detection():
     parser = SectionAwarePDFParser()
     
     assert parser._detect_section("1. Introduction to Attention Mechanisms", "Unknown") == "Introduction"
-    assert parser._detect_section("3. Model Architecture and Multi-Head Attention", "Unknown") == "Architecture"
-    assert parser._detect_section("4. Experimental Results on WMT 2014", "Unknown") == "Experiments"
+    assert parser._detect_section("3. Model Architecture and Multi-Head Attention", "Unknown") == "Methods & Architecture"
+    assert parser._detect_section("4. Experimental Results on WMT 2014", "Unknown") == "Experiments & Benchmarks"
+    assert parser._detect_section("Significance Statement\nKey discovery in neuroscience", "Unknown") == "Abstract & Significance"
+    assert parser._detect_section("Materials and Methods\nCell cultures were prepared", "Unknown") == "Methods & Architecture"
+    assert parser._detect_section("Results\nOur analysis revealed significant activation", "Unknown") == "Results"
     assert parser._detect_section("References\n[1] Vaswani et al.", "Introduction") == "References"
 
 def test_chunking_preserves_metadata():
