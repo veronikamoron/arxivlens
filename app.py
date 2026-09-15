@@ -1,6 +1,5 @@
 """
-ArXivLens: Editorial Research Studio (Voize / Warm Sand & Editorial Serif Aesthetic)
-Inspiriert vom hochwertigen europäischen MedTech/AI Editorial Design:
+ArXivLens: Editorial Research Studio (Warm Sand & Editorial Serif Aesthetic):
 Warmer Sandton, edle Serif-Typografie, abgerundete Konturkarten und 100% Free-Tier Garantie.
 """
 
@@ -90,7 +89,7 @@ CUSTOM_CSS = """
         margin-right: 10px;
     }
 
-    /* Hero Section (Voize Style) */
+    /* Hero Section  */
     .hero-split-container {
         display: flex;
         gap: 24px;
@@ -143,7 +142,7 @@ CUSTOM_CSS = """
         color: #64748B;
     }
 
-    /* Paper Canvas (Voize Large Container) */
+    /* Paper Canvas (Large Container) */
     .paper-canvas-editorial {
         background-color: #FFFFFF;
         border: 1.8px solid #0F172A;
@@ -431,7 +430,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==============================================================================
-# 6. HERO SECTION (VOIZE-INSPIRIERTER EDITORIAL LOOK)
+# 6. HERO SECTION ( EDITORIAL LOOK)
 # ==============================================================================
 st.markdown("""
 <div class="hero-split-container">
