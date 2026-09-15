@@ -9,6 +9,9 @@
 
 
 > **Ein praxisnahes, kostenloses RAG-System für wissenschaftliche Arbeiten, das reale Probleme wie zerschnittene Tabellen, Formelverluste und ungenaue Zitate durch hybride Suche und Cross-Encoder Re-Ranking löst.**
+>
+> - 🔬 **[ArXivLens – Academic Research Studio](https://arxivlens-studio.streamlit.app)** — Production-Grade Hybrid RAG (Dense + BM25 + FlashRank Re-Ranking) für arXiv-Papers mit 100% Free-Tier Gemini Stack & halluzinationsfreien Zitaten
+  - 🔗[GitHub Repo](https://github.com/veronikamoron/arxivlens)
 
 ---
 
