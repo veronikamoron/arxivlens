@@ -5,6 +5,7 @@ Warmer Sandton, edle Serif-Typografie, abgerundete Konturkarten und 100% Free-Ti
 """
 
 import os
+import re
 import time
 import streamlit as st
 from pathlib import Path
@@ -558,21 +559,21 @@ if indexed:
     journal_badge = f"<span class='metric-badge' style='background: #F1F5F9; color: #0F172A; font-weight: 600;'>🏛️ {current_meta.get('journal', 'Forschungsarbeit')}</span>"
     doi_badge = f"<a href='https://doi.org/{current_meta['doi']}' target='_blank' style='text-decoration: none;'><span class='metric-badge' style='background: #EEF2FF; color: #4338CA; border-color: #C7D2FE;'>🔗 DOI: {current_meta['doi']}</span></a>" if current_meta.get('doi') else ""
 
-    st.markdown(f"""
-    <div class="paper-canvas-editorial">
-        <div class="editorial-overline">A K T I V E S  D O K U M E N T</div>
-        <div class="paper-canvas-heading">{current_meta.get('title', 'Unbekanntes Dokument')}</div>
-        <div>{author_pills_html}</div>
-        <div class="canvas-metrics-row">
-            {journal_badge}
-            <span class="metric-badge">📄 {current_meta.get('chunk_count', 0)} Chunks extrahiert</span>
-            <span class="metric-badge">🔍 Hybrid BM25 + Dense Index</span>
-            <span class="metric-badge">⚡ Google Gemini 3.6 Flash</span>
-            <span class="metric-badge">📅 {current_meta.get('published', '2024')}</span>
-            {doi_badge}
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    canvas_html = (
+        f'<div class="paper-canvas-editorial">'
+        f'<div class="editorial-overline">A K T I V E S  D O K U M E N T</div>'
+        f'<div class="paper-canvas-heading">{current_meta.get("title", "Unbekanntes Dokument")}</div>'
+        f'<div>{author_pills_html}</div>'
+        f'<div class="canvas-metrics-row">'
+        f'{journal_badge}'
+        f'<span class="metric-badge">📄 {current_meta.get("chunk_count", 0)} Chunks extrahiert</span>'
+        f'<span class="metric-badge">🔍 Hybrid BM25 + Dense Index</span>'
+        f'<span class="metric-badge">⚡ Google Gemini 3.6 Flash</span>'
+        f'<span class="metric-badge">📅 {current_meta.get("published", "2024")}</span>'
+        f'{doi_badge}'
+        f'</div></div>'
+    )
+    st.markdown(canvas_html, unsafe_allow_html=True)
 
     with st.expander("📋 BibTeX Zitation generieren / kopieren", expanded=False):
         st.code(generate_bibtex(current_meta), language="bibtex")

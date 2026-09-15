@@ -68,18 +68,32 @@ class MetadataExtractor:
         year_matches = self.YEAR_PATTERN.findall(first_page_text[:1500])
         year = year_matches[0] if year_matches else "2024"
 
-        # 4. Titel heuristisch ableiten (erste signifikante Zeilen)
+        # 4. Titel & Autoren heuristisch ableiten
         lines = [line.strip() for line in first_page_text.split("\n") if len(line.strip()) > 5]
         cleaned_lines = []
-        for line in lines[:10]:
-            if not any(stop in line.lower() for stop in ["http", "doi.org", "vol.", "issue", "pnas", "www.", "copyright", "downloaded from"]):
-                cleaned_lines.append(line)
+        for line in lines[:12]:
+            l_lower = line.lower()
+            if not any(stop in l_lower for stop in ["http", "doi.org", "vol.", "issue", "pnas", "www.", "copyright", "downloaded from"]):
+                # Banners wie 'RESEARCH ARTICLE | NEUROSCIENCE' entfernen
+                clean = re.sub(r"(?i)^(research article|review article|open access|article|report)\s*[|•\-–—]\s*", "", line).strip()
+                clean = re.sub(r"(?i)\s*[|•\-–—]\s*(open access|research article|neuroscience)", "", clean).strip()
+                if len(clean) > 8:
+                    cleaned_lines.append(clean)
+
+        fallback_title = cleaned_lines[0] if cleaned_lines else paper_id.replace("_", " ").title()
         
-        fallback_title = " ".join(cleaned_lines[:2]) if cleaned_lines else paper_id.replace("_", " ").title()
+        # Autoren aus der Zeile unter dem Titel extrahieren (falls vorhanden)
+        authors = ["Wissenschaftliche Autoren"]
+        if len(cleaned_lines) > 1 and ("," in cleaned_lines[1] or " and " in cleaned_lines[1] or " und " in cleaned_lines[1]):
+            raw_authors = re.sub(r"[a-z0-9,]+(?=\s|$)", "", cleaned_lines[1]) # Affiliation markers wie a,b entfernen
+            parsed_authors = [re.sub(r"[^a-zA-Z\s\.\-]", "", a).strip() for a in re.split(r"[,;]|\band\b", cleaned_lines[1])]
+            filtered_authors = [a for a in parsed_authors if len(a) > 2 and not any(kw in a.lower() for kw in ["edited", "received", "accepted", "university", "department"])]
+            if filtered_authors:
+                authors = filtered_authors[:8]
 
         return {
             "title": fallback_title[:150],
-            "authors": ["Wissenschaftliche Autoren"],
+            "authors": authors,
             "journal": journal,
             "doi": doi,
             "year": year,
