@@ -81,13 +81,18 @@ Anstatt alle Chunks ungefiltert an das LLM zu schicken, analysiert FlashRank (Cr
 
 ---
 
-## 🖥️ Das Streamlit Web-Dashboard
+## 🖥️ Das Web-Dashboard: Editorial Research Studio
 
-Das Frontend wurde mit einem maßgeschneiderten **Modern Dark/Slate Theme** umgesetzt:
-- **💬 Tab 1: Chat & Q&A Assistent:** Streaming-Antworten mit Inline-Zitaten wie `[Quelle 1 (S. 3)]` und ausklappbaren Originaltext-Karten.
-- **🔍 Tab 2: Evidence Inspector:** Live-Transparenz über Dense-, BM25- und Re-Ranking-Scores der abgerufenen Abschnitte.
-- **📑 Tab 3: 1-Klick Paper Summary:** Automatische Zusammenfassung von Kernaussagen, Architektur, Benchmarks und Limitationen.
-- **⚡ 1-Klick Quickstart:** Direktes Laden historischer Meilenstein-Papers (*Attention Is All You Need* / *RAG Paper*).
+Vergiss sterile, seelenlose KI-Chatfenster. Das Interface von ArXivLens wurde als **warmes, fokussiertes Editorial Studio** konzipiert – inspiriert von modernstem europäischen Produkt- und Magazin-Design:
+
+* 🎨 **Warme Sand- & Serif-Ästhetik:** Sanfter Elfenbeinton (`#FAF7F2`) kombiniert mit ausdrucksstarker Buchdruck-Typografie (*Newsreader*) und markanten Konturkarten (`1.5px solid #0F172A`). Liest sich wie ein hochwertiges Forschungsmagazin und schont die Augen bei stundenlanger Recherche.
+* 📑 **Interaktive Paper-Canvas:** Zeigt geladene Dokumente mit Autoren-Pills, RAG-Metadaten und einem integrierten **BibTeX-Generator** für sofortiges wissenschaftliches Zitieren.
+* 💡 **Smart Suggestion Chips (1-Klick Einstieg):** Direkt über dem Chatfeld schlägt das System die 3 wichtigsten Fachfragen zum aktiven Paper vor (z.B. *„📐 Wie berechnet sich die Scaled Dot-Product Attention?“* oder *„📊 Welcher BLEU-Score wurde erzielt?“*).
+* 💬 **Tab 1: Peer-Review Q&A:** Fließende Streaming-Antworten mit nummerierten Inline-Zitaten. Jede Antwort enthält aufklappbare Beleg-Karten mit Original-Textauszug und Cross-Encoder Match-Score.
+* 🔍 **Tab 2: Evidence & Telemetrie:** Volle Transparenz unter der Haube: Vergleiche Dense Semantic Similarity, BM25 Keyword-Score und FlashRank Re-Ranking Werte direkt nebeneinander.
+* ⚡ **Tab 3: 1-Klick Executive Summary:** Generiert auf Knopfdruck eine strukturierte Analyse des gesamten Papers (Kerninnovation, Architektur, Benchmarks und Limitationen).
+* ⏱️ **Echtzeit-Telemetrie:** Jede Antwort zeigt transparent Latenz und Verifizierungsgrad (`⚡ Gemini 3.6 Flash · ⏱️ 420 ms · 📚 4 Belege verifiziert`).
+
 
 ---
 
