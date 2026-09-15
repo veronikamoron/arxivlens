@@ -25,7 +25,7 @@ class GeminiLLMClient:
     def _get_model(self, model_name: str, system_instruction: Optional[str] = None) -> genai.GenerativeModel:
         """Initialisiert das Modell mit System-Prompt."""
         if not self.api_key:
-            raise ValueError("Kein Google Gemini API-Key hinterlegt. Bitte in der Sidebar oder in .env eintragen.")
+            raise ValueError("Kein Google Gemini API-Key hinterlegt. Bitte trage deinen kostenlosen API-Key in der linken Seitenleiste ein.")
 
         instruction = system_instruction or PromptTemplates.SYSTEM_PROMPT
         return genai.GenerativeModel(

@@ -76,7 +76,7 @@ class GeminiEmbeddingClient:
     def embed_documents(self, texts: List[str], batch_size: int = 50) -> List[List[float]]:
         """Erzeugt Vektor-Embeddings für eine Liste von Text-Chunks in Batches mit Auto-Fallback."""
         if not self.api_key:
-            raise ValueError("Kein Google Gemini API Key gesetzt. Bitte in .env oder im UI eintragen.")
+            raise ValueError("Kein Google Gemini API Key gesetzt. Bitte trage deinen kostenlosen Key in der linken Seitenleiste ein.")
 
         model_to_use = self._get_active_model()
         all_embeddings: List[List[float]] = []
@@ -109,7 +109,7 @@ class GeminiEmbeddingClient:
     def embed_query(self, query: str) -> List[float]:
         """Erzeugt das Vektor-Embedding für eine Suchanfrage des Nutzers."""
         if not self.api_key:
-            raise ValueError("Kein Google Gemini API Key gesetzt. Bitte in .env oder im UI eintragen.")
+            raise ValueError("Kein Google Gemini API Key gesetzt. Bitte trage deinen kostenlosen Key in der linken Seitenleiste ein.")
 
         model_to_use = self._get_active_model()
         try:
