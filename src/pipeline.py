@@ -87,7 +87,7 @@ class ArXivLensPipeline:
 
         # 1. Erste Seite extrahieren & echte Metadaten (Titel, Autoren, Journal, DOI) gewinnen
         first_page_text = self.parser.extract_first_page_text(pdf_path)
-        extracted = self.metadata_extractor.extract_with_llm(first_page_text, filename)
+        extracted = self.metadata_extractor.extract_metadata(pdf_path, filename, first_page_text)
 
         title = extracted.title or paper_id.replace("_", " ").title()
 

@@ -551,6 +551,19 @@ if indexed:
     st.session_state.active_paper_id = selected_pid
 
     current_meta = indexed.get(st.session_state.active_paper_id, {})
+    # Auto-Heal: Automatische Aktualisierung, falls Paper noch Dummy-Daten ("Lokaler Upload") hält
+    if current_meta and (current_meta.get("authors") == ["Lokaler Upload"] or current_meta.get("title", "").lower().startswith("pnas.")):
+        local_p = current_meta.get("local_pdf_path")
+        if local_p and Path(local_p).exists():
+            fixed = st.session_state.pipeline.metadata_extractor.extract_metadata(local_p, Path(local_p).name)
+            current_meta["title"] = fixed.title
+            current_meta["authors"] = fixed.authors
+            current_meta["journal"] = fixed.journal
+            current_meta["doi"] = fixed.doi
+            current_meta["published"] = fixed.published
+            current_meta["pdf_url"] = fixed.pdf_url
+            indexed[st.session_state.active_paper_id] = current_meta
+
     authors = current_meta.get("authors", [])
     author_pills_html = "".join([f"<span class='author-pill'>{a}</span>" for a in authors[:5]])
     if len(authors) > 5:
