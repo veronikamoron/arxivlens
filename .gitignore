@@ -1,0 +1,79 @@
+# ==============================================================================
+# SICHERHEITS-NETZ: WASSERDICHTE .GITIGNORE FÜR LOKALES RAG-PROJEKT
+# Verhindert garantiert jeden Leak von API-Keys, Passwörtern, PDFs und Vector-DBs
+# ==============================================================================
+
+# 1. API-Keys & Umgebungsvariablen (STRENGSTE ISOLATION)
+.env
+*.env
+.env.*
+!.env.example
+secrets.toml
+.streamlit/secrets.toml
+
+# 2. Daten, Dokumente & Test-PDFs (Keine privaten Daten im Repo!)
+data/
+docs/
+uploads/
+downloads/
+sample_papers/
+*.pdf
+*.txt
+*.docx
+*.csv
+*.xlsx
+*.parquet
+
+# 3. Lokale Vektordatenbanken & Indizes (Können sensible Embeddings enthalten)
+chroma_db/
+qdrant_storage/
+vector_store/
+indices/
+bm25_index/
+*.sqlite3
+*.duckdb
+*.db
+
+# 4. Lokale Modell-Gewichte & Embedding-Caches (Spart Gigabytes an Speicher)
+models/
+.cache/
+huggingface/
+.fastembed/
+nltk_data/
+checkpoints/
+
+# 5. Python-Umgebungen & Caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# 6. Testing, Linting & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# 7. IDE & Betriebssystem
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 8. Logs & Monitoring
+logs/
+*.log
+wandb/
+.chainlit/
