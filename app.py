@@ -321,7 +321,7 @@ st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 # ==============================================================================
 # 2. SESSION STATE MANAGEMENT
 # ==============================================================================
-if "pipeline" not in st.session_state:
+if "pipeline" not in st.session_state or not hasattr(st.session_state.pipeline, "metadata_extractor"):
     st.session_state.pipeline = ArXivLensPipeline()
 
 if "messages" not in st.session_state:
@@ -555,7 +555,11 @@ if indexed:
     if current_meta and (current_meta.get("authors") == ["Lokaler Upload"] or current_meta.get("title", "").lower().startswith("pnas.")):
         local_p = current_meta.get("local_pdf_path")
         if local_p and Path(local_p).exists():
-            fixed = st.session_state.pipeline.metadata_extractor.extract_metadata(local_p, Path(local_p).name)
+            extractor = getattr(st.session_state.pipeline, "metadata_extractor", None)
+            if not extractor:
+                from src.ingestion.metadata_extractor import MetadataExtractor
+                extractor = MetadataExtractor(api_key=getattr(st.session_state.pipeline, "api_key", None))
+            fixed = extractor.extract_metadata(local_p, Path(local_p).name)
             current_meta["title"] = fixed.title
             current_meta["authors"] = fixed.authors
             current_meta["journal"] = fixed.journal

@@ -38,13 +38,24 @@ class ArXivLensPipeline:
         # In-Memory Cache für geladene Papers
         self.indexed_papers: Dict[str, Dict[str, Any]] = {}
 
+    def __getattr__(self, name: str) -> Any:
+        """Sicherer Fallback für dynamische Attribute bei persistenten Sitzungs-Instanzen."""
+        if name == "metadata_extractor":
+            self.metadata_extractor = MetadataExtractor(api_key=self.api_key)
+            return self.metadata_extractor
+        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+
     def update_api_key(self, new_key: str):
         """Aktualisiert den Google API-Key über alle Module hinweg."""
         self.api_key = new_key
-        self.parser.set_api_key(new_key)
-        self.metadata_extractor.set_api_key(new_key)
-        self.embedding_client.set_api_key(new_key)
-        self.llm_client.set_api_key(new_key)
+        if hasattr(self, "parser"):
+            self.parser.set_api_key(new_key)
+        if hasattr(self, "metadata_extractor"):
+            self.metadata_extractor.set_api_key(new_key)
+        if hasattr(self, "embedding_client"):
+            self.embedding_client.set_api_key(new_key)
+        if hasattr(self, "llm_client"):
+            self.llm_client.set_api_key(new_key)
 
     def ingest_arxiv_paper(self, arxiv_query: str) -> Dict[str, Any]:
         """Lädt ein Paper via ArXiv ID herunter, parst es und indiziert Chunks."""
