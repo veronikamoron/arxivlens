@@ -19,6 +19,7 @@ downloads/
 sample_papers/
 *.pdf
 *.txt
+!requirements.txt
 *.docx
 *.csv
 *.xlsx
